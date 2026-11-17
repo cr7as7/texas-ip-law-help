@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import stat
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,6 +103,31 @@ def remove_extra(sftp, remote: str, keep: set[str], rel_base: str = "") -> None:
             print(f"rm {rel}")
 
 
+def open_transport(paramiko, host, port, user, password, attempts=4):
+    """Connect, retrying when GoDaddy is slow to answer the login.
+
+    A wrong password is not retried, so a bad secret cannot lock the account.
+    """
+    for attempt in range(1, attempts + 1):
+        transport = paramiko.Transport((host, port))
+        try:
+            transport.connect(username=user, password=password)
+            return transport
+        except paramiko.AuthenticationException as exc:
+            transport.close()
+            if "timeout" not in str(exc).lower():
+                sys.exit(f"SFTP login was rejected: {exc}")
+            err = exc
+        except (paramiko.SSHException, OSError, EOFError) as exc:
+            transport.close()
+            err = exc
+        if attempt < attempts:
+            wait = 5 * attempt
+            print(f"SFTP connect attempt {attempt}/{attempts} failed ({err}); retrying in {wait}s")
+            time.sleep(wait)
+    sys.exit(f"SFTP connect failed after {attempts} attempts: {err}")
+
+
 def main() -> None:
     host = require("GODADDY_SFTP_HOST")
     user = require("GODADDY_SFTP_USER")
@@ -121,9 +147,8 @@ def main() -> None:
     if not files:
         sys.exit(f"Theme folder is empty: {LOCAL}")
 
-    transport = paramiko.Transport((host, port))
+    transport = open_transport(paramiko, host, port, user, password)
     try:
-        transport.connect(username=user, password=password)
         sftp = paramiko.SFTPClient.from_transport(transport)
         # The themes folder must already exist. If it does not, the path is wrong
         # (for example missing the html/ prefix) and we must not invent a new tree.
