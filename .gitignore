@@ -10,3 +10,4 @@ __pycache__/
 # local credentials, never commit
 SFTP.txt
 *.sftp.txt
+!.env.example

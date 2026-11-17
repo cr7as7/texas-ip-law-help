@@ -28,7 +28,8 @@ SKIP_NAMES = {".DS_Store", ".git", "__pycache__"}
 
 
 def env(name: str, default: str = "") -> str:
-    return os.environ.get(name, default).strip()
+    # GitHub passes unset secrets as empty strings, so fall back on blank too.
+    return (os.environ.get(name) or default).strip()
 
 
 def require(name: str) -> str:
