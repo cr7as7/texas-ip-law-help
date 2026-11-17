@@ -11,7 +11,7 @@ Required env:
 
 Optional env:
   GODADDY_SFTP_PORT       default 22
-  GODADDY_REMOTE_PATH     default wp-content/themes/texas-ip-law-help
+  GODADDY_REMOTE_PATH     default html/wp-content/themes/texas-ip-law-help
 """
 
 from __future__ import annotations
@@ -23,7 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "wordpress" / "theme" / "texas-ip-law-help"
-REMOTE_DEFAULT = "wp-content/themes/texas-ip-law-help"
+# GoDaddy Managed WordPress: the SFTP home holds html/ (the WordPress root).
+REMOTE_DEFAULT = "html/wp-content/themes/texas-ip-law-help"
 SKIP_NAMES = {".DS_Store", ".git", "__pycache__"}
 
 
@@ -42,7 +43,7 @@ def require(name: str) -> str:
             "  GODADDY_SFTP_USER\n"
             "  GODADDY_SFTP_PASSWORD\n"
             "Optional: GODADDY_SFTP_PORT (22), GODADDY_REMOTE_PATH "
-            "(wp-content/themes/texas-ip-law-help)\n"
+            "(html/wp-content/themes/texas-ip-law-help)\n"
             "Copy host, user, and password from GoDaddy Managed WordPress → SFTP."
         )
     return value
@@ -54,7 +55,7 @@ def safe_remote(path: str) -> str:
         not remote
         or ".." in remote.split("/")
         or not remote.endswith("texas-ip-law-help")
-        or remote in {"wp-content", "wp-content/themes"}
+        or remote in {"wp-content", "wp-content/themes", "html/wp-content", "html/wp-content/themes"}
     ):
         sys.exit(
             "Refusing deploy. GODADDY_REMOTE_PATH must be the theme folder "
@@ -124,6 +125,16 @@ def main() -> None:
     try:
         transport.connect(username=user, password=password)
         sftp = paramiko.SFTPClient.from_transport(transport)
+        # The themes folder must already exist. If it does not, the path is wrong
+        # (for example missing the html/ prefix) and we must not invent a new tree.
+        themes_dir = remote.rsplit("/", 1)[0]
+        try:
+            sftp.stat(themes_dir)
+        except FileNotFoundError:
+            sys.exit(
+                f"Remote folder {themes_dir!r} does not exist, so this is not the WordPress "
+                "themes folder. Check GODADDY_REMOTE_PATH (GoDaddy uses html/wp-content/themes/...)."
+            )
         ensure_dir(sftp, remote)
         for rel, path in sorted(files.items()):
             dest = f"{remote}/{rel}"
@@ -133,6 +144,7 @@ def main() -> None:
                 print(f"put {rel}")
                 sftp.put(str(path), dest)
         remove_extra(sftp, remote, set(files))
+        sftp.stat(f"{remote}/style.css")  # fail loudly if the upload did not land
         sftp.close()
     finally:
         transport.close()
