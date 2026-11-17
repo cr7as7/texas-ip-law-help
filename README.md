@@ -37,6 +37,8 @@ chmod +x scripts/*.sh
 - **Pull request:** `.github/workflows/ci.yml` lints theme PHP and builds the static preview. It does not touch GoDaddy.
 - **Merge to `main`:** `.github/workflows/deploy.yml` uploads **only** `wordpress/theme/texas-ip-law-help/` over SFTP. Pages, posts, menus, and media stay in WordPress.
 - **Manual deploy:** Actions → Deploy theme → Run workflow.
+- **`main` is protected:** no direct pushes. Make a branch, open a PR, wait for the `check` job to pass, then merge. Settings → Branches to change this.
+- **Local deploy:** `set -a; source .env; set +a; python3 scripts/deploy-theme-sftp.py` (needs `pip install -r scripts/requirements-deploy.txt`).
 
 GoDaddy credentials are GitHub Actions secrets (repo → Settings → Secrets and variables → Actions), never committed:
 
