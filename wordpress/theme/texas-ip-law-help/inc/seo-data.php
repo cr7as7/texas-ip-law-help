@@ -50,6 +50,10 @@ return array(
 		'title'       => 'Disclaimer — Texas IP Law Help',
 		'description' => 'Texas IP Law Help is general educational information only, not legal advice.',
 	),
+	'privacy' => array(
+		'title'       => 'Privacy notice — Texas IP Law Help',
+		'description' => 'What happens to information you share on Texas IP Law Help: the consultation form, the Ask AI chat, cookies, and logs.',
+	),
 	'contact' => array(
 		'title'       => 'Contact & free consultation — Texas IP Law Help',
 		'description' => 'Reach Texas IP Law Group from Texas IP Law Help: phone, email, or request a free consultation.',

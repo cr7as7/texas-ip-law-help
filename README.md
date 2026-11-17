@@ -19,9 +19,34 @@
 - The four articles are normal WordPress posts, created on first activation, editable in wp-admin. Permalinks are `/articles/%postname%/`.
 - SEO (titles, descriptions, canonical, Open Graph, JSON-LD, noindex on search and 404) is in `inc/seo.php` and `inc/seo-data.php`. Do not add an SEO plugin.
 - The consultation form posts to `admin-ajax.php` (`help_consult`) and emails `contact@texasiplawgroup.com` (override with the `HELP_CONSULT_EMAIL` constant in wp-config.php). It has a honeypot, validation, and a per-IP rate limit.
-- The "Ask AI" chat is a canned demo, not a live AI. Replace the chat logic in `assets/js/help.js` when a real backend exists.
+- The "Ask AI" chat is a canned demo until a Grok key is set (see below).
 
-**First time on a new WordPress site:** after the deploy uploads the theme, go to Appearance → Themes and activate **Texas IP Law Help**. Activation creates the 13 pages and 4 articles, and sets the front page and permalinks.
+### Grok AI and spending caps
+
+The "Ask AI" chat runs in **demo mode** (canned answers) until an xAI key is set. Live mode is `inc/ai.php`: the browser posts to WordPress, and WordPress calls xAI from the server, so the key is never exposed.
+
+To switch on Grok, add this to `html/wp-config.php` on GoDaddy (above the line "That's all, stop editing"). **Never put the key in the repo.**
+
+```php
+define( 'HELP_XAI_API_KEY', 'xai-...' );
+```
+
+Optional settings (all have safe defaults):
+
+| Constant | Default | Meaning |
+|----------|---------|---------|
+| `HELP_XAI_MODEL` | `grok-3-mini` | Model name. Confirm the current name in the xAI console. |
+| `HELP_AI_DAILY_TOKEN_CAP` | `150000` | Site-wide tokens per day. Over it, visitors get knowledge-base answers. |
+| `HELP_AI_MONTHLY_TOKEN_CAP` | `2500000` | Site-wide tokens per month. |
+| `HELP_AI_MAX_REPLY_TOKENS` | `450` | Longest answer. |
+| `HELP_AI_IP_HOURLY` / `HELP_AI_IP_DAILY` | `15` / `40` | Questions per visitor per hour / day. |
+| `HELP_AI_ENABLED` | `true` | Set `false` to switch the AI off at once (demo answers only). |
+
+Layers of protection: 4 questions per chat in the browser, per-visitor limits, a daily and monthly site-wide token cap checked **before** each call (using xAI's reported usage afterwards), a short reply limit, and no stored conversations. The model is told to give general education only, never legal advice, and to link only to this site, USPTO.gov, Copyright.gov, and texasiplawgroup.com; links to other hosts are stripped from answers. Usage so far is under **Tools → Help AI usage** in wp-admin.
+
+Test it without a real key: `python3 scripts/mock-xai.py`, then start Docker with `HELP_XAI_API_KEY=test HELP_XAI_ENDPOINT=http://host.docker.internal:8099/v1/chat/completions docker compose up -d wordpress`.
+
+**First time on a new WordPress site:** after the deploy uploads the theme, go to Appearance → Themes and activate **Texas IP Law Help**. Activation creates the 14 pages and 4 articles, and sets the front page and permalinks.
 
 ## Local WordPress (Docker, separate from the firm site)
 

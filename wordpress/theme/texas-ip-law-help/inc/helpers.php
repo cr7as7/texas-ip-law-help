@@ -29,6 +29,7 @@ function help_url_map() {
 		'faq'              => 'faq/',
 		'about'            => 'about/',
 		'disclaimer'       => 'disclaimer/',
+		'privacy'          => 'privacy/',
 		'contact'          => 'contact/',
 		'search-results'   => 'search-results/',
 	);
@@ -85,6 +86,7 @@ function help_active_nav() {
 			'faq'            => 'faq',
 			'about'          => 'about',
 			'disclaimer'     => 'about',
+			'privacy'        => 'about',
 			'contact'        => 'about',
 			'search-results' => 'home',
 		);

@@ -29,6 +29,7 @@ function help_seed_pages() {
 		'faq'               => 'Frequently asked questions',
 		'about'             => 'About Texas IP Law Help',
 		'disclaimer'        => 'Disclaimer',
+		'privacy'           => 'Privacy notice',
 		'contact'           => 'Contact Texas IP Law Group',
 		'search-results'    => 'Search results',
 	);
@@ -133,6 +134,8 @@ function help_seed_create_posts() {
 	foreach ( $articles as $article ) {
 		$existing = get_page_by_path( $article['slug'], OBJECT, 'post' );
 		if ( $existing ) {
+			// Retry the image if an earlier run could not attach it.
+			help_seed_attach_image( $existing->ID, $article['image'], $article['title'] );
 			continue;
 		}
 		$when    = gmdate( 'Y-m-d H:i:s', time() - ( (int) $article['age_days'] * DAY_IN_SECONDS ) );
@@ -210,3 +213,31 @@ function help_seed_site() {
 	update_option( 'help_seed_version', HELP_THEME_VERSION );
 }
 add_action( 'after_switch_theme', 'help_seed_site' );
+
+/**
+ * Self-heal after a deploy: when the theme version changes, an admin visit fills in anything
+ * missing (pages, articles, article images). Never overwrites content that exists and never
+ * touches settings the owner may have changed, except to set a missing front page.
+ */
+function help_seed_repair() {
+	if ( ! current_user_can( 'manage_options' ) || get_option( 'help_seed_version' ) === HELP_THEME_VERSION ) {
+		return;
+	}
+	if ( ! get_option( 'help_seed_version' ) ) {
+		return; // Never activated: after_switch_theme does the first full setup.
+	}
+	kses_remove_filters();
+	$pages = help_seed_create_pages();
+	help_seed_create_posts();
+	kses_init_filters();
+
+	if ( ! get_option( 'page_on_front' ) && isset( $pages['home'] ) ) {
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $pages['home'] );
+	}
+	if ( ! get_option( 'page_for_posts' ) && isset( $pages['articles'] ) ) {
+		update_option( 'page_for_posts', $pages['articles'] );
+	}
+	update_option( 'help_seed_version', HELP_THEME_VERSION );
+}
+add_action( 'admin_init', 'help_seed_repair' );

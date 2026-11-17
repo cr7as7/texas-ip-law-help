@@ -7,12 +7,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HELP_THEME_VERSION', '1.0.0' );
+define( 'HELP_THEME_VERSION', '1.1.0' );
 
 require_once get_theme_file_path( 'inc/helpers.php' );
 require_once get_theme_file_path( 'inc/seo.php' );
 require_once get_theme_file_path( 'inc/search.php' );
 require_once get_theme_file_path( 'inc/consult.php' );
+require_once get_theme_file_path( 'inc/ai.php' );
 require_once get_theme_file_path( 'inc/seed.php' );
 
 /**
@@ -50,12 +51,14 @@ function help_enqueue_assets() {
 			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
 			'consultEmail' => help_consult_email(),
 			'firmUrl'      => 'https://texasiplawgroup.com/',
+			'ai'           => array( 'live' => help_ai_is_live() ),
 			'urls'         => array(
 				'ask'         => help_url( 'ask' ),
 				'guidePatent' => help_url( 'guides-patent' ),
 				'guideMark'   => help_url( 'guides-trademark' ),
 				'guideCopy'   => help_url( 'guides-copyright' ),
 				'provisional' => help_url( 'a-provisional' ),
+				'privacy'     => help_url( 'privacy' ),
 			),
 		)
 	);
