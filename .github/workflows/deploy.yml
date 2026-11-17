@@ -1,0 +1,37 @@
+name: Deploy theme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wordpress/theme/**"
+      - "scripts/deploy-theme-sftp.py"
+      - "scripts/requirements-deploy.txt"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-godaddy-theme
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install SFTP client
+        run: pip install -r scripts/requirements-deploy.txt
+
+      - name: Upload theme to GoDaddy
+        env:
+          GODADDY_SFTP_HOST: ${{ secrets.GODADDY_SFTP_HOST }}
+          GODADDY_SFTP_USER: ${{ secrets.GODADDY_SFTP_USER }}
+          GODADDY_SFTP_PASSWORD: ${{ secrets.GODADDY_SFTP_PASSWORD }}
+          GODADDY_SFTP_PORT: ${{ secrets.GODADDY_SFTP_PORT }}
+          GODADDY_REMOTE_PATH: ${{ secrets.GODADDY_REMOTE_PATH }}
+        run: python3 scripts/deploy-theme-sftp.py

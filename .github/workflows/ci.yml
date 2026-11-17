@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP syntax
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+
+      - name: Lint theme PHP
+        run: |
+          status=0
+          found=0
+          while IFS= read -r -d '' file; do
+            found=1
+            php -l "$file" || status=1
+          done < <(find wordpress/theme -name '*.php' -print0)
+          if [ "$found" -eq 0 ]; then
+            echo "No theme PHP files to lint"
+            exit 1
+          fi
+          exit "$status"
+
+      - name: Build static preview
+        run: bash scripts/build-texasiplawhelp-dist.sh
+
+      - name: Preview bundle includes the homepage
+        run: test -f static/dist/index.html
