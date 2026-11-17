@@ -53,7 +53,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         text = (
             "A provisional application can secure an early filing date. "
-            "See https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application "
+            "See https://www.uspto.gov/patents/basics/apply/provisional-application "
             "and https://evil.example.com/steal for more.\n\n"
             "[Patent guide](http://localhost:8082/guides/patent/) is a good start. "
             "For your facts, talk to an attorney."

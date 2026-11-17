@@ -11,3 +11,5 @@ __pycache__/
 SFTP.txt
 *.sftp.txt
 !.env.example
+node_modules/
+package-lock.json

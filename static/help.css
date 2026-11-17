@@ -1242,6 +1242,11 @@ html.client-export .mock-label-preview {
 }
 .mock-nav-toggle::before { top: 14px; box-shadow: 0 7px 0 var(--gold); }
 .mock-nav-toggle::after { bottom: 14px; }
+/* Show the hamburger on tablets and phones. This has to come after the base rule above,
+   otherwise display:none wins and the menu cannot be opened. */
+@media (max-width: 1024px) {
+  .mock-nav-toggle { display: flex; margin-left: auto; }
+}
 .sr-only {
   position: absolute;
   width: 1px;

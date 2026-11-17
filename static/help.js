@@ -50,7 +50,7 @@
     { topic: 'general', type: 'guide', title: 'Inventor FAQ', url: 'faq.html', desc: 'Patent vs trademark vs copyright, self-file, AI limits.', keywords: ['faq', 'help', 'difference'] },
     { topic: 'general', type: 'guide', title: 'Ask Texas IP Law Help AI', url: 'ask.html', desc: 'General IP questions (educational demo).', keywords: ['ai', 'chat', 'ask', 'question'] },
     { topic: 'patents', type: 'uspto', title: 'Patent basics (USPTO)', url: 'https://www.uspto.gov/patents/basics', external: true, desc: 'Official USPTO patent basics.', keywords: ['uspto', 'basics'] },
-    { topic: 'patents', type: 'uspto', title: 'Provisional application (USPTO)', url: 'https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application', external: true, desc: 'Official USPTO provisional overview.', keywords: ['provisional', 'uspto'] },
+    { topic: 'patents', type: 'uspto', title: 'Provisional application (USPTO)', url: 'https://www.uspto.gov/patents/basics/apply/provisional-application', external: true, desc: 'Official USPTO provisional overview.', keywords: ['provisional', 'uspto'] },
     { topic: 'trademarks', type: 'uspto', title: 'USPTO trademarks', url: 'https://www.uspto.gov/trademarks', external: true, desc: 'Federal trademark resources.', keywords: ['trademark', 'uspto', 'teas'] },
     { topic: 'copyright', type: 'uspto', title: 'U.S. Copyright Office', url: 'https://www.copyright.gov/', external: true, desc: 'Register writings, art, and software.', keywords: ['copyright', 'eco'] },
   ];
@@ -201,7 +201,7 @@
   }
 
   var AI_REPLIES = [
-    'Many inventors file a <strong>provisional</strong> first for an early date — general info only. Path: <a href="guide-patent.html">patent guide</a> · official <a href="https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application" target="_blank" rel="noopener">USPTO provisional ↗</a>. If investors or a public demo are involved, that is a <button type="button" data-open-consult style="background:none;border:none;padding:0;color:var(--gold);cursor:pointer;text-decoration:underline">consultation</button>, not an AI answer.',
+    'Many inventors file a <strong>provisional</strong> first for an early date — general info only. Path: <a href="guide-patent.html">patent guide</a> · official <a href="https://www.uspto.gov/patents/basics/apply/provisional-application" target="_blank" rel="noopener">USPTO provisional ↗</a>. If investors or a public demo are involved, that is a <button type="button" data-open-consult style="background:none;border:none;padding:0;color:var(--gold);cursor:pointer;text-decoration:underline">consultation</button>, not an AI answer.',
     'Public disclosure can affect patent rights. This chat cannot judge your facts. Read <a href="article-provisional.html">provisional vs. non-provisional</a> or talk to <a href="' + FIRM_HOME + '">Texas IP Law Group</a>.',
     'Names and logos are usually trademarks, not patents. Start with <a href="guide-trademark.html">the trademark guide</a>, then <a href="https://www.uspto.gov/trademarks" target="_blank" rel="noopener">USPTO TEAS ↗</a>.',
     'Copyright is the Copyright Office, not USPTO. <a href="guide-copyright.html">Copyright guide</a> · <a href="https://www.copyright.gov/" target="_blank" rel="noopener">copyright.gov ↗</a>.',

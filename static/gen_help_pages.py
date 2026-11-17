@@ -231,7 +231,7 @@ w(
     <div class="mock-guide-official">
       <h2 style="margin:0 0 12px;font-size:18px;color:var(--navy-deep)">Official next clicks (USPTO)</h2>
       <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">We do not replace the government site. These are the pages to use for self-service filing and learning.</p>
-      <p style="margin:0"><a href="https://www.uspto.gov/patents/basics" target="_blank" rel="noopener">Patent basics ↗</a> · <a href="https://www.uspto.gov/patents/apply" target="_blank" rel="noopener">How to apply ↗</a> · <a href="https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application" target="_blank" rel="noopener">Provisional applications ↗</a></p>
+      <p style="margin:0"><a href="https://www.uspto.gov/patents/basics" target="_blank" rel="noopener">Patent basics ↗</a> · <a href="https://www.uspto.gov/patents/apply" target="_blank" rel="noopener">How to apply ↗</a> · <a href="https://www.uspto.gov/patents/basics/apply/provisional-application" target="_blank" rel="noopener">Provisional applications ↗</a></p>
     </div>
     <div class="help-next">
       <a href="article-patent-basics.html"><strong>Read:</strong> Patent basics for inventors</a>
@@ -351,7 +351,7 @@ ARTICLES = [
         """
     <p>A <strong>provisional</strong> application can establish an early U.S. filing date. It is not examined, does not become a patent by itself, and expires at 12 months unless you file a matching non-provisional that claims its benefit.</p>
     <p>A <strong>non-provisional</strong> (utility) application is examined. Claims get written, the examiner searches, and you may receive office actions.</p>
-    <p>Inventors often ask about provisionals before an investor meeting. Timing around <strong>public disclosure</strong> is fact-specific — this article cannot tell you whether your demo last month still leaves a path. Use the <a href="guide-patent.html">patent guide</a> and official <a href="https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application" target="_blank" rel="noopener">USPTO provisional page ↗</a>, then consult if the date is close.</p>
+    <p>Inventors often ask about provisionals before an investor meeting. Timing around <strong>public disclosure</strong> is fact-specific — this article cannot tell you whether your demo last month still leaves a path. Use the <a href="guide-patent.html">patent guide</a> and official <a href="https://www.uspto.gov/patents/basics/apply/provisional-application" target="_blank" rel="noopener">USPTO provisional page ↗</a>, then consult if the date is close.</p>
 """,
     ),
     (
@@ -459,7 +459,7 @@ w(
       <article class="help-resource-card">
         <h3>Provisional applications</h3>
         <p>Lower-cost first filing to secure an early date.</p>
-        <a href="https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application" target="_blank" rel="noopener">USPTO provisional overview ↗</a>
+        <a href="https://www.uspto.gov/patents/basics/apply/provisional-application" target="_blank" rel="noopener">USPTO provisional overview ↗</a>
       </article>
       <article class="help-resource-card">
         <h3>Trademarks (TEAS)</h3>

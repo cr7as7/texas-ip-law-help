@@ -59,6 +59,19 @@ Test it without a real key: `python3 scripts/mock-xai.py`, then start Docker wit
 
 This stack has its own project name, ports, and volumes, so it runs next to the firm site's Docker. The theme folder is bind-mounted: edit a file, refresh the browser. `docker compose down -v` wipes the database.
 
+## Click-through test
+
+Opens every page and clicks every link and button, then runs the consultation form (checks the email arrives in Mailpit), the Ask AI chat, the FAQ accordions, search and the mobile menu, at desktop and phone size.
+
+```bash
+npm i --no-save playwright-core          # uses your installed Google Chrome
+docker compose --profile tools run --rm wpcli transient delete --all   # reset the 5-per-hour consult limit
+node scripts/e2e/click-test.js desktop
+node scripts/e2e/click-test.js mobile
+```
+
+It ends with `N/N checks passed`. The local site must be running.
+
 ## Visual parity check
 
 Compares the WordPress site with the static mock at desktop (1280) and phone (390) widths:

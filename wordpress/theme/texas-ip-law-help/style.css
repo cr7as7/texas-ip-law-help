@@ -1026,6 +1026,9 @@ body.mock-modal-open { overflow: hidden; }
   grid-template-columns: 38% 62%;
   gap: 28px;
   align-items: start;
+  /* The two columns plus the gap are 28px wider than the box; clip it so
+     1280px-wide screens do not get a sideways scrollbar. */
+  overflow-x: clip;
 }
 .mock-intake {
   background: var(--white);
@@ -1270,6 +1273,11 @@ html.client-export .mock-label-preview {
 }
 .mock-nav-toggle::before { top: 14px; box-shadow: 0 7px 0 var(--gold); }
 .mock-nav-toggle::after { bottom: 14px; }
+/* Show the hamburger on tablets and phones. This has to come after the base rule above,
+   otherwise display:none wins and the menu cannot be opened. */
+@media (max-width: 1024px) {
+  .mock-nav-toggle { display: flex; margin-left: auto; }
+}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1550,3 +1558,6 @@ html.client-export .mock-label-preview {
 .help-source-links { font-size: 14px; color: var(--muted); }
 
 .help-next > a:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* help.js hides the floating Quick answer button on /ask/ with the hidden attribute. */
+.mock-quick-answer[hidden] { display: none; }
