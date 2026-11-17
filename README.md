@@ -82,7 +82,7 @@ GoDaddy credentials are GitHub Actions secrets (repo → Settings → Secrets an
 | `GODADDY_SFTP_USER` | SFTP username |
 | `GODADDY_SFTP_PASSWORD` | SFTP password |
 | `GODADDY_SFTP_PORT` | `22` (optional) |
-| `GODADDY_REMOTE_PATH` | `wp-content/themes/texas-ip-law-help` (optional; must end with `texas-ip-law-help`) |
+| `GODADDY_REMOTE_PATH` | `html/wp-content/themes/texas-ip-law-help` (optional; must end with `texas-ip-law-help`) |
 
 Copy host, username, and password from the GoDaddy Managed WordPress SFTP panel. The first deploy stays red until those three secrets exist.
 
