@@ -23,6 +23,9 @@ function help_seed_pages() {
 		'guides/patent'     => 'How to file a patent — overview for inventors',
 		'guides/trademark'  => 'How to file a trademark — overview',
 		'guides/copyright'  => 'How to file a copyright — overview',
+		'guides/provisional'      => 'Provisional patent application guide',
+		'guides/patent-search'    => 'How to search for existing patents',
+		'guides/trademark-search' => 'How to search for a trademark',
 		'articles'          => 'Articles',
 		'resources'         => 'Official resources',
 		'ask'               => 'Ask Texas IP Law Help AI',
@@ -76,10 +79,17 @@ function help_seed_create_pages() {
  * @return string
  */
 function help_seed_resolve_tokens( $content ) {
-	return preg_replace_callback(
+	$content = preg_replace_callback(
 		'/\{\{help_url:([a-z\-]+)\}\}/',
 		static function ( $m ) {
 			return esc_url_raw( help_url( $m[1] ) );
+		},
+		$content
+	);
+	return preg_replace_callback(
+		'/\{\{consult:([^}]+)\}\}/',
+		static function ( $m ) {
+			return '<button type="button" data-open-consult style="background:none;border:none;padding:0;color:var(--gold);cursor:pointer;font:inherit;text-decoration:underline">' . esc_html( $m[1] ) . '</button>';
 		},
 		$content
 	);
@@ -132,14 +142,17 @@ function help_seed_attach_image( $post_id, $file, $alt ) {
 function help_seed_create_posts() {
 	$articles = require get_theme_file_path( 'inc/seed-content.php' );
 	foreach ( $articles as $article ) {
-		$existing = get_page_by_path( $article['slug'], OBJECT, 'post' );
-		if ( $existing ) {
-			// Retry the image if an earlier run could not attach it.
-			help_seed_attach_image( $existing->ID, $article['image'], $article['title'] );
+		$content = "<!-- wp:html -->\n" . help_seed_resolve_tokens( $article['content'] ) . "\n<!-- /wp:html -->";
+		$hash    = md5( $content );
+		$post    = get_page_by_path( $article['slug'], OBJECT, 'post' );
+
+		if ( $post ) {
+			help_seed_refresh_post( $post, $article, $content, $hash );
+			help_seed_attach_image( $post->ID, $article['image'], $article['title'] );
 			continue;
 		}
+
 		$when    = gmdate( 'Y-m-d H:i:s', time() - ( (int) $article['age_days'] * DAY_IN_SECONDS ) );
-		$content = "<!-- wp:html -->\n" . help_seed_resolve_tokens( $article['content'] ) . "\n<!-- /wp:html -->";
 		$post_id = wp_insert_post(
 			array(
 				'post_type'     => 'post',
@@ -156,16 +169,63 @@ function help_seed_create_posts() {
 		if ( is_wp_error( $post_id ) ) {
 			continue;
 		}
-		update_post_meta( $post_id, 'help_seo_title', $article['seo_title'] );
-		update_post_meta( $post_id, 'help_seo_desc', $article['seo_desc'] );
-		if ( '' !== $article['home_blurb'] ) {
-			update_post_meta( $post_id, 'help_home_blurb', $article['home_blurb'] );
-		}
-		if ( $article['featured'] ) {
-			update_post_meta( $post_id, 'help_featured', '1' );
-		}
+		help_seed_write_meta( $post_id, $article, $hash );
 		help_seed_attach_image( $post_id, $article['image'], $article['title'] );
 	}
+}
+
+/**
+ * Store the SEO and home-page meta for a seeded article.
+ *
+ * @param int                 $post_id Post ID.
+ * @param array<string,mixed> $article Article definition.
+ * @param string              $hash    Hash of the content we stored.
+ */
+function help_seed_write_meta( $post_id, $article, $hash ) {
+	update_post_meta( $post_id, 'help_seo_title', $article['seo_title'] );
+	update_post_meta( $post_id, 'help_seo_desc', $article['seo_desc'] );
+	if ( '' !== $article['home_blurb'] ) {
+		update_post_meta( $post_id, 'help_home_blurb', $article['home_blurb'] );
+	}
+	if ( $article['featured'] ) {
+		update_post_meta( $post_id, 'help_featured', '1' );
+	}
+	update_post_meta( $post_id, 'help_seed_hash', $hash );
+}
+
+/**
+ * Bring an existing seeded article up to date, but only if nobody edited it.
+ *
+ * "Not edited" means the stored content still matches the hash we saved when we wrote it.
+ * Articles created by the first theme version saved no hash; if they carry our SEO meta we
+ * treat them as unedited once. Anything the owner changed is left alone.
+ *
+ * @param WP_Post             $post    Existing post.
+ * @param array<string,mixed> $article Article definition.
+ * @param string              $content New content.
+ * @param string              $hash    Hash of the new content.
+ */
+function help_seed_refresh_post( $post, $article, $content, $hash ) {
+	$stored = (string) get_post_meta( $post->ID, 'help_seed_hash', true );
+	if ( $stored === $hash ) {
+		return; // Already current.
+	}
+	$unedited = ( '' !== $stored && md5( $post->post_content ) === $stored )
+		|| ( '' === $stored && '' !== (string) get_post_meta( $post->ID, 'help_seo_title', true ) );
+	if ( ! $unedited ) {
+		return;
+	}
+	wp_update_post(
+		wp_slash(
+			array(
+				'ID'           => $post->ID,
+				'post_title'   => $article['title'],
+				'post_excerpt' => $article['excerpt'],
+				'post_content' => $content,
+			)
+		)
+	);
+	help_seed_write_meta( $post->ID, $article, $hash );
 }
 
 /**

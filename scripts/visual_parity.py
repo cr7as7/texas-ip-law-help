@@ -52,6 +52,26 @@ PAGES = {
     "search": ("search-results.html?q=provisional%20patent", "/search-results/?q=provisional%20patent"),
 }
 VIEWPORTS = {"desktop": (1280, 7000), "mobile": (390, 12000)}
+
+# Pages whose body was written out in full after the mock was approved. Below the intro they
+# differ on purpose, so only the top of the page (header, breadcrumb, title, intro) is
+# compared: name -> (desktop px, mobile px). Everything else is compared in full.
+EXPANDED = {
+    "guides": (320, 410),
+    "guide-patent": (340, 430),
+    "guide-trademark": (300, 430),
+    "guide-copyright": (300, 430),
+    "articles": (300, 370),
+    "article-patent-basics": (280, 370),
+    "article-provisional": (280, 370),
+    "article-patentability": (280, 370),
+    "article-licensing": (280, 370),
+    "resources": (300, 390),
+    "faq": (660, 800),
+    "about": (250, 490),
+    "contact": (440, 580),
+    "search": (900, 1250),  # the search index now also lists the new guides and articles
+}
 THRESHOLD = 0.5  # percent of differing pixels allowed per page
 
 
@@ -171,6 +191,9 @@ def main() -> int:
                     shot(f"{MOCK}/{mock_file}", m_png, w, h)
                     shot(f"{WP}{wp_path}", w_png, w, h)
                     a, b = trim(Image.open(m_png)), trim(Image.open(w_png))
+                    if name in EXPANDED:
+                        top = EXPANDED[name][0 if view == "desktop" else 1]
+                        a, b = a.crop((0, 0, a.width, top)), b.crop((0, 0, b.width, top))
                     pct, first, diff = compare(a, b)
                     if pct == 0:
                         break
@@ -178,7 +201,8 @@ def main() -> int:
                 flag = "" if (pct <= THRESHOLD and a.height == b.height) else "  <-- CHECK"
                 if flag:
                     failed += 1
-                print(f"{name:24} {view:8} {a.height:7} {b.height:7} {pct:7.2f}  {first}{flag}")
+                note = "  (top only)" if name in EXPANDED else ""
+                print(f"{name:24} {view:8} {a.height:7} {b.height:7} {pct:7.2f}  {first}{flag}{note}")
     finally:
         httpd.shutdown()
     print(f"\n{failed} page/viewport pair(s) need a look. Images: {OUT}")

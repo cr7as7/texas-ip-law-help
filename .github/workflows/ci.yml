@@ -41,7 +41,7 @@ jobs:
           for f in inc/ai.php assets/images/favicon.svg assets/images/og-default.png; do
             test -f "$T/$f" || { echo "Missing $T/$f"; exit 1; }
           done
-          for k in home guides guides-patent guides-trademark guides-copyright resources ask faq about disclaimer privacy contact search-results; do
+          for k in home guides guides-patent guides-trademark guides-copyright guides-provisional guides-patent-search guides-trademark-search resources ask faq about disclaimer privacy contact search-results; do
             test -f "$T/template-parts/pages/$k.php" || { echo "Missing page part: $k"; exit 1; }
           done
 

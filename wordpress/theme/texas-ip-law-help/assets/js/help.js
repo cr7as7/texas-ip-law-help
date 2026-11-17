@@ -185,7 +185,7 @@
 
   // Educational demo: canned answers, not a live AI model.
   var AI_REPLIES = [
-    'Many inventors file a <strong>provisional</strong> first for an early date — general info only. Path: <a href="' + esc(URLS.guidePatent) + '">patent guide</a> · official <a href="https://www.uspto.gov/patents/basics/types-patent-applications/provisional-application" target="_blank" rel="noopener">USPTO provisional ↗</a>. If investors or a public demo are involved, that is a ' + CONSULT_BTN + 'consultation</button>, not an AI answer.',
+    'Many inventors file a <strong>provisional</strong> first for an early date — general info only. Path: <a href="' + esc(URLS.guidePatent) + '">patent guide</a> · official <a href="https://www.uspto.gov/patents/basics/apply/provisional-application" target="_blank" rel="noopener">USPTO provisional ↗</a>. If investors or a public demo are involved, that is a ' + CONSULT_BTN + 'consultation</button>, not an AI answer.',
     'Public disclosure can affect patent rights. This chat cannot judge your facts. Read <a href="' + esc(URLS.provisional) + '">provisional vs. non-provisional</a> or talk to <a href="' + esc(FIRM_HOME) + '">Texas IP Law Group</a>.',
     'Names and logos are usually trademarks, not patents. Start with <a href="' + esc(URLS.guideMark) + '">the trademark guide</a>, then <a href="https://www.uspto.gov/trademarks" target="_blank" rel="noopener">USPTO TEAS ↗</a>.',
     'Copyright is the Copyright Office, not USPTO. <a href="' + esc(URLS.guideCopy) + '">Copyright guide</a> · <a href="https://www.copyright.gov/" target="_blank" rel="noopener">copyright.gov ↗</a>.'
