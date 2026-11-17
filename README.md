@@ -11,7 +11,41 @@
 | `exports/` | Client PDFs |
 | `wordpress/theme/texas-ip-law-help/` | WP templates → **GoDaddy Managed WordPress** (production path) |
 
-## Local preview
+## WordPress theme (production)
+
+`wordpress/theme/texas-ip-law-help/` is a hand-built theme (no page builder, no CDNs, fonts self-hosted) that matches the static mock pixel for pixel.
+
+- Page layouts live in `template-parts/pages/<uri-with-dashes>.php`; `page.php` picks the file from the page URI. Editing a page's copy means editing that file (it deploys with the theme).
+- The four articles are normal WordPress posts, created on first activation, editable in wp-admin. Permalinks are `/articles/%postname%/`.
+- SEO (titles, descriptions, canonical, Open Graph, JSON-LD, noindex on search and 404) is in `inc/seo.php` and `inc/seo-data.php`. Do not add an SEO plugin.
+- The consultation form posts to `admin-ajax.php` (`help_consult`) and emails `contact@texasiplawgroup.com` (override with the `HELP_CONSULT_EMAIL` constant in wp-config.php). It has a honeypot, validation, and a per-IP rate limit.
+- The "Ask AI" chat is a canned demo, not a live AI. Replace the chat logic in `assets/js/help.js` when a real backend exists.
+
+**First time on a new WordPress site:** after the deploy uploads the theme, go to Appearance → Themes and activate **Texas IP Law Help**. Activation creates the 13 pages and 4 articles, and sets the front page and permalinks.
+
+## Local WordPress (Docker, separate from the firm site)
+
+```bash
+./scripts/docker-setup.sh
+# Site  → http://localhost:8082            (HELP_WP_PORT to change)
+# Admin → http://localhost:8082/wp-admin   helpadmin / help-local-only (local only)
+# Mail  → http://localhost:8026            (Mailpit: consultation emails land here)
+```
+
+This stack has its own project name, ports, and volumes, so it runs next to the firm site's Docker. The theme folder is bind-mounted: edit a file, refresh the browser. `docker compose down -v` wipes the database.
+
+## Visual parity check
+
+Compares the WordPress site with the static mock at desktop (1280) and phone (390) widths:
+
+```bash
+pip install pillow numpy
+python3 scripts/visual_parity.py   # needs Google Chrome and the local Docker site running
+```
+
+Passing means every page differs from the mock by less than 0.5% of pixels (currently 0.00%).
+
+## Local static preview
 
 ```bash
 chmod +x scripts/*.sh
