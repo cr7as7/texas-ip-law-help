@@ -31,6 +31,33 @@ jobs:
           fi
           exit "$status"
 
+      - name: Theme is a valid WordPress theme
+        run: |
+          T=wordpress/theme/texas-ip-law-help
+          for f in style.css index.php functions.php header.php footer.php front-page.php page.php single.php home.php 404.php assets/js/help.js; do
+            test -f "$T/$f" || { echo "Missing $T/$f"; exit 1; }
+          done
+          grep -q '^Theme Name: Texas IP Law Help' "$T/style.css" || { echo "style.css is missing the theme header"; exit 1; }
+          for k in home guides guides-patent guides-trademark guides-copyright resources ask faq about disclaimer contact search-results; do
+            test -f "$T/template-parts/pages/$k.php" || { echo "Missing page part: $k"; exit 1; }
+          done
+
+      - name: No external CDNs or web-font hosts in the theme
+        run: |
+          if grep -rEn "fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.|unpkg\.com|jsdelivr\.net|code\.jquery\.com" wordpress/theme; then
+            echo "External asset host found. Self-host it (see SEO and privacy rules)."
+            exit 1
+          fi
+
+      - name: Every page has one H1 in its template
+        run: |
+          fail=0
+          for f in wordpress/theme/texas-ip-law-help/template-parts/pages/*.php; do
+            n=$(grep -o '<h1' "$f" | wc -l | tr -d ' ')
+            if [ "$n" -ne 1 ]; then echo "$f has $n <h1> tags"; fail=1; fi
+          done
+          exit "$fail"
+
       - name: Build static preview
         run: bash scripts/build-texasiplawhelp-dist.sh
 
