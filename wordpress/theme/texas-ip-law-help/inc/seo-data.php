@@ -50,6 +50,18 @@ return array(
 		'title'       => 'Disclaimer — Texas IP Law Help',
 		'description' => 'Texas IP Law Help is general educational information only, not legal advice.',
 	),
+	'guides/provisional' => array(
+		'title'       => 'Provisional patent application guide — Texas IP Law Help',
+		'description' => 'What a provisional patent application does, the 12-month deadline, what to include, common mistakes, and the official USPTO pages to use.',
+	),
+	'guides/patent-search' => array(
+		'title'       => 'How to search for existing patents — Texas IP Law Help',
+		'description' => 'A step-by-step guide to searching for prior art with USPTO Patent Public Search and other free tools, and what a search can and cannot tell you.',
+	),
+	'guides/trademark-search' => array(
+		'title'       => 'How to search for a trademark — Texas IP Law Help',
+		'description' => 'Check a business name or logo before you launch: USPTO trademark search, variations, related goods and services, and common-law uses.',
+	),
 	'privacy' => array(
 		'title'       => 'Privacy notice — Texas IP Law Help',
 		'description' => 'What happens to information you share on Texas IP Law Help: the consultation form, the Ask AI chat, cookies, and logs.',

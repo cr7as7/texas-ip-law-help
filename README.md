@@ -16,7 +16,7 @@
 `wordpress/theme/texas-ip-law-help/` is a hand-built theme (no page builder, no CDNs, fonts self-hosted) that matches the static mock pixel for pixel.
 
 - Page layouts live in `template-parts/pages/<uri-with-dashes>.php`; `page.php` picks the file from the page URI. Editing a page's copy means editing that file (it deploys with the theme).
-- The four articles are normal WordPress posts, created on first activation, editable in wp-admin. Permalinks are `/articles/%postname%/`.
+- The eight articles are normal WordPress posts (text in `inc/seed-content.php`), created on first activation and editable in wp-admin. If an article you never edited gets newer text in a later theme version, it is refreshed automatically; edited articles are never touched. Permalinks are `/articles/%postname%/`.
 - SEO (titles, descriptions, canonical, Open Graph, JSON-LD, noindex on search and 404) is in `inc/seo.php` and `inc/seo-data.php`. Do not add an SEO plugin.
 - The consultation form posts to `admin-ajax.php` (`help_consult`) and emails `contact@texasiplawgroup.com` (override with the `HELP_CONSULT_EMAIL` constant in wp-config.php). It has a honeypot, validation, and a per-IP rate limit.
 - The "Ask AI" chat is a canned demo until a Grok key is set (see below).
@@ -46,7 +46,7 @@ Layers of protection: 4 questions per chat in the browser, per-visitor limits, a
 
 Test it without a real key: `python3 scripts/mock-xai.py`, then start Docker with `HELP_XAI_API_KEY=test HELP_XAI_ENDPOINT=http://host.docker.internal:8099/v1/chat/completions docker compose up -d wordpress`.
 
-**First time on a new WordPress site:** after the deploy uploads the theme, go to Appearance → Themes and activate **Texas IP Law Help**. Activation creates the 14 pages and 4 articles, and sets the front page and permalinks.
+**First time on a new WordPress site:** after the deploy uploads the theme, go to Appearance → Themes and activate **Texas IP Law Help**. Activation creates the 17 pages and 8 articles, and sets the front page and permalinks.
 
 ## Local WordPress (Docker, separate from the firm site)
 
