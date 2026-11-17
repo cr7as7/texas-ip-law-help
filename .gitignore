@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .idea/
 .vscode/
+# local credentials, never commit
+SFTP.txt
+*.sftp.txt
