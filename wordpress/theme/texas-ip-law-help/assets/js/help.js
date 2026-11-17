@@ -22,7 +22,7 @@
     '<button type="button" class="mock-modal__close" data-close-modal aria-label="Close">&times;</button>' +
     '<h2 id="consult-title">Free consultation — Texas IP Law Group</h2>' +
     '<p class="mock-modal__note">Your request goes to <strong>' + esc(CONSULT_EMAIL) + '</strong>. ' +
-    'Please do not include confidential details yet.</p>' +
+    'Please do not include confidential details yet. <a href="' + esc(URLS.privacy || '/privacy/') + '">Privacy</a>.</p>' +
     '<form id="consult-form" class="mock-form-consult" novalidate>' +
     '<div class="mock-field help-hp" aria-hidden="true"><label for="consult-website">Website</label><input id="consult-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>' +
     '<div class="mock-field"><label for="consult-name">Name *</label><input id="consult-name" name="name" type="text" required autocomplete="name" maxlength="120"></div>' +
@@ -178,6 +178,7 @@
     div.innerHTML = '<div class="who">' + who + '</div>' + text;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+    return div;
   }
 
   var CONSULT_BTN = '<button type="button" data-open-consult style="background:none;border:none;padding:0;color:var(--gold);cursor:pointer;text-decoration:underline">';
@@ -190,9 +191,78 @@
     'Copyright is the Copyright Office, not USPTO. <a href="' + esc(URLS.guideCopy) + '">Copyright guide</a> · <a href="https://www.copyright.gov/" target="_blank" rel="noopener">copyright.gov ↗</a>.'
   ];
   var KB_REPLY = '(Knowledge base) Demo limit reached — curated answer with USPTO + guides. ' + CONSULT_BTN + 'Schedule consultation</button>.';
+
+  // Live mode (Grok, via our server). The server decides when to fall back to the knowledge base.
+  var LIVE = !!(CFG.ai && CFG.ai.live);
+  var AI_NAME = 'Texas IP Law Help AI';
+  var KB_NAME = 'Texas IP Law Help (KB)';
+  var KB_LIVE_REPLY =
+    'Our AI is resting for now, so here are the best starting points: ' +
+    '<a href="' + esc(URLS.guidePatent) + '">patent guide</a> · ' +
+    '<a href="' + esc(URLS.guideMark) + '">trademark guide</a> · ' +
+    '<a href="' + esc(URLS.guideCopy) + '">copyright guide</a> · ' +
+    '<a href="https://www.uspto.gov/" target="_blank" rel="noopener">USPTO.gov ↗</a>. ' +
+    'For your own situation, ' + CONSULT_BTN + 'book a free consultation</button>.';
+  var LIVE_NOTE = '<div style="font-size:11px;color:var(--muted);margin-top:8px">General information, not legal advice. ' + CONSULT_BTN + 'Talk to an attorney</button></div>';
+  var chatHistory = [];
   var replyIdx = 0;
   var aiTurns = 0;
   var kbMode = false;
+
+  // Safe rendering for model text: escape everything, then link only trusted hosts.
+  var TRUSTED = ['uspto.gov', 'copyright.gov', 'texasiplawgroup.com', window.location.hostname];
+  function trustedHost(host) {
+    host = String(host || '').toLowerCase();
+    return TRUSTED.some(function (t) { return host === t || host.slice(-(t.length + 1)) === '.' + t; });
+  }
+  function renderModelText(text) {
+    var linked = esc(text).replace(/https?:\/\/[^\s<]+/g, function (raw) {
+      var url = raw.replace(/[.,;:!?)]+$/, '');
+      var tail = raw.slice(url.length);
+      var a = document.createElement('a');
+      a.href = url.replace(/&amp;/g, '&');
+      if (!/^https?:$/.test(a.protocol) || !trustedHost(a.hostname)) return esc(url) + tail;
+      var own = a.hostname === window.location.hostname;
+      return '<a href="' + esc(a.href) + '"' + (own ? '' : ' target="_blank" rel="noopener"') + '>' + url + (own ? '' : ' ↗') + '</a>' + tail;
+    });
+    return linked.split(/\n{2,}/).map(function (p) { return '<p style="margin:0 0 8px">' + p.replace(/\n/g, '<br>') + '</p>'; }).join('');
+  }
+
+  // Ask the server. Resolves to { mode: 'ai', reply } or { mode: 'kb' }; never rejects.
+  function askLive(text) {
+    var data = new FormData();
+    data.append('action', 'help_ai_chat');
+    data.append('message', text);
+    data.append('history', JSON.stringify(chatHistory.slice(-6)));
+    return fetch(CFG.ajaxUrl, { method: 'POST', body: data, credentials: 'same-origin' })
+      .then(function (res) { return res.json().catch(function () { return null; }); })
+      .then(function (json) {
+        if (json && json.success && json.data && json.data.mode === 'ai' && json.data.reply) return json.data;
+        return { mode: 'kb' };
+      })
+      .catch(function () { return { mode: 'kb' }; });
+  }
+
+  function answerLive(text, done) {
+    if (chatInput) chatInput.disabled = true;
+    if (chatSend) chatSend.disabled = true;
+    var thinking = appendBubble(chatMsgs, AI_NAME, '<em>Thinking…</em>', true);
+    askLive(text).then(function (result) {
+      if (thinking && thinking.parentNode) thinking.parentNode.removeChild(thinking);
+      if (result.mode === 'ai') {
+        appendBubble(chatMsgs, AI_NAME, renderModelText(result.reply) + LIVE_NOTE, true);
+        chatHistory.push({ role: 'user', content: text }, { role: 'assistant', content: result.reply });
+      } else {
+        kbMode = true;
+        updateBudgetUi();
+        appendBubble(chatMsgs, KB_NAME, KB_LIVE_REPLY, true);
+      }
+      bindConsultIn(chatMsgs);
+      if (chatInput) { chatInput.disabled = false; chatInput.focus(); }
+      if (chatSend) chatSend.disabled = false;
+      if (done) done();
+    });
+  }
 
   var startBtn = document.getElementById('mock-start-ai');
   var chatMsgs = document.getElementById('mock-chat-msgs');
@@ -210,7 +280,8 @@
   function updateBudgetUi() {
     if (!chatBudget) return;
     var left = Math.max(0, AI_TURN_BUDGET - aiTurns);
-    chatBudget.textContent = kbMode ? 'Knowledge base mode (demo)' : 'AI demo · ' + left + ' turn' + (left === 1 ? '' : 's') + ' left';
+    var label = LIVE ? 'AI' : 'AI demo';
+    chatBudget.textContent = kbMode ? 'Knowledge base mode' + (LIVE ? '' : ' (demo)') : label + ' · ' + left + ' turn' + (left === 1 ? '' : 's') + ' left';
     chatBudget.classList.toggle('is-kb', kbMode);
   }
 
@@ -227,15 +298,24 @@
     aiTurns = 1;
     kbMode = false;
     updateBudgetUi();
-    setTimeout(function () {
-      appendBubble(chatMsgs, 'Texas IP Law Help AI', AI_REPLIES[0], true);
-      bindConsultIn(chatMsgs);
-      if (chatStatus) chatStatus.textContent = '● Demo AI — educational only';
-      chatInput.disabled = false;
-      chatSend.disabled = false;
+    chatHistory = [];
+    function openChat() {
+      if (chatStatus) chatStatus.textContent = LIVE ? '● Grok AI — educational only' : '● Demo AI — educational only';
       if (step1) step1.classList.add('is-done');
       if (step2) step2.classList.add('is-done');
       if (intake) intake.classList.add('is-started');
+    }
+    if (LIVE) {
+      openChat();
+      answerLive(q);
+      return;
+    }
+    setTimeout(function () {
+      appendBubble(chatMsgs, 'Texas IP Law Help AI', AI_REPLIES[0], true);
+      bindConsultIn(chatMsgs);
+      openChat();
+      chatInput.disabled = false;
+      chatSend.disabled = false;
       replyIdx = 1;
     }, 450);
   }
@@ -255,6 +335,15 @@
     aiTurns += 1;
     if (aiTurns > AI_TURN_BUDGET) kbMode = true;
     updateBudgetUi();
+    if (LIVE) {
+      if (kbMode) {
+        appendBubble(chatMsgs, KB_NAME, KB_LIVE_REPLY, true);
+        bindConsultIn(chatMsgs);
+      } else {
+        answerLive(text);
+      }
+      return;
+    }
     setTimeout(function () {
       if (kbMode) {
         appendBubble(chatMsgs, 'Texas IP Law Help (KB)', KB_REPLY, true);

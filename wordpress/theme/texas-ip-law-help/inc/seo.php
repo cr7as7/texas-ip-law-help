@@ -95,6 +95,11 @@ function help_seo_current() {
 		$out['description'] = 'Patent, trademark, and copyright guides for inventors, by Texas IP Law Group. Educational only; not legal advice.';
 	}
 
+	// Social previews: every indexable page gets an image (articles keep their own).
+	if ( '' === $out['image'] && ! $out['noindex'] ) {
+		$out['image'] = get_theme_file_uri( 'assets/images/og-default.png' );
+	}
+
 	$cache = $out;
 	return $cache;
 }
@@ -169,6 +174,67 @@ function help_head_seo() {
 	);
 }
 add_action( 'wp_head', 'help_head_seo', 3 );
+
+/**
+ * Favicon and touch icon (the theme ships its own; no site-icon upload needed).
+ */
+function help_head_icons() {
+	if ( has_site_icon() ) {
+		return;
+	}
+	printf( '<link rel="icon" href="%s" type="image/svg+xml">' . "\n", esc_url( get_theme_file_uri( 'assets/images/favicon.svg' ) ) );
+	printf( '<link rel="apple-touch-icon" href="%s">' . "\n", esc_url( get_theme_file_uri( 'assets/images/apple-touch-icon.png' ) ) );
+	echo '<meta name="theme-color" content="#001228">' . "\n";
+}
+add_action( 'wp_head', 'help_head_icons', 4 );
+
+/**
+ * Sitemap: keep the noindex search page and the thin user/taxonomy lists out
+ * (the users list would also publish the admin username).
+ *
+ * @param WP_Sitemaps_Provider|false $provider Provider.
+ * @param string                     $name     Provider name.
+ * @return WP_Sitemaps_Provider|false
+ */
+function help_sitemap_providers( $provider, $name ) {
+	return in_array( $name, array( 'users', 'taxonomies' ), true ) ? false : $provider;
+}
+add_filter( 'wp_sitemaps_add_provider', 'help_sitemap_providers', 10, 2 );
+
+/**
+ * Removed sitemap providers (users, taxonomies) must 404, not fall through to the home page.
+ */
+function help_sitemap_404_removed() {
+	$name = get_query_var( 'sitemap' );
+	if ( ! $name || 'index' === $name || ! function_exists( 'wp_sitemaps_get_server' ) ) {
+		return;
+	}
+	if ( ! wp_sitemaps_get_server()->registry->get_provider( $name ) ) {
+		global $wp_query;
+		$wp_query->set_404();
+		status_header( 404 );
+		nocache_headers();
+	}
+}
+add_action( 'template_redirect', 'help_sitemap_404_removed', 0 );
+
+/**
+ * Exclude the search results page from the pages sitemap.
+ *
+ * @param array<string,mixed> $args      Query args.
+ * @param string              $post_type Post type.
+ * @return array<string,mixed>
+ */
+function help_sitemap_exclude_search( $args, $post_type ) {
+	if ( 'page' === $post_type ) {
+		$page = get_page_by_path( 'search-results' );
+		if ( $page ) {
+			$args['post__not_in'] = array_merge( isset( $args['post__not_in'] ) ? (array) $args['post__not_in'] : array(), array( $page->ID ) );
+		}
+	}
+	return $args;
+}
+add_filter( 'wp_sitemaps_posts_query_args', 'help_sitemap_exclude_search', 10, 2 );
 remove_action( 'wp_head', 'rel_canonical' );
 
 /**

@@ -16,7 +16,11 @@ defined( 'ABSPATH' ) || exit;
     <div class="mock-intake" id="mock-intake">
       <span class="mock-step-label" id="mock-step-1">Step 1</span>
       <h2 style="margin:0 0 8px;font-family:var(--font-display);color:var(--navy-deep)">Your question</h2>
+      <?php if ( help_ai_is_live() ) : ?>
+      <p style="font-size:14px;color:var(--muted);margin:0 0 16px">Your name and email stay in your browser. Your question is sent to our AI provider (xAI) to write an answer, and we do not save it. Please do not include confidential details about your invention. <a href="<?php echo esc_url( help_url( 'privacy' ) ); ?>">Privacy notice</a>.</p>
+      <?php else : ?>
       <p style="font-size:14px;color:var(--muted);margin:0 0 16px">Name and email are only used to start this demo chat. This demo does not store your data on a server.</p>
+      <?php endif; ?>
       <div class="mock-field">
         <label for="name">Name *</label>
         <input id="name" type="text" placeholder="Your name" autocomplete="name">
@@ -57,7 +61,7 @@ defined( 'ABSPATH' ) || exit;
           <div>
             <strong>Texas IP Law Help AI</strong>
             <small id="mock-chat-status">Click Start AI help</small>
-            <span class="mock-ai-budget" id="mock-chat-budget">AI demo · 4 turns left</span>
+            <span class="mock-ai-budget" id="mock-chat-budget"><?php echo help_ai_is_live() ? 'AI · 4 turns left' : 'AI demo · 4 turns left'; ?></span>
           </div>
         </div>
         <div class="mock-chat__msgs" id="mock-chat-msgs">
@@ -67,7 +71,7 @@ defined( 'ABSPATH' ) || exit;
           <input type="text" id="mock-chat-input" placeholder="Ask a follow-up question…" disabled>
           <button type="button" class="mock-btn mock-btn--gold" id="mock-chat-send" disabled>Send</button>
         </div>
-        <p style="margin:0;padding:10px 14px 14px;font-size:11px;color:var(--muted);background:#fff">Demo chat: a few sample answers, then the knowledge base (guides + USPTO).</p>
+        <p style="margin:0;padding:10px 14px 14px;font-size:11px;color:var(--muted);background:#fff"><?php echo help_ai_is_live() ? 'AI answers are general information and can be wrong. Not legal advice. After a few questions, or on busy days, you get curated guide and USPTO answers instead.' : 'Demo chat: a few sample answers, then the knowledge base (guides + USPTO).'; ?></p>
       </div>
     </div>
   </div>

@@ -12,6 +12,12 @@ services:
       WORDPRESS_DB_USER: help_user
       WORDPRESS_DB_PASSWORD: help_pass
       WORDPRESS_DB_NAME: help_db
+      # Grok AI. Leave unset for demo mode. See README "Grok AI and spending caps".
+      HELP_XAI_API_KEY: ${HELP_XAI_API_KEY:-}
+      HELP_XAI_MODEL: ${HELP_XAI_MODEL:-grok-3-mini}
+      HELP_XAI_ENDPOINT: ${HELP_XAI_ENDPOINT:-https://api.x.ai/v1/chat/completions}
+      HELP_AI_DAILY_TOKEN_CAP: ${HELP_AI_DAILY_TOKEN_CAP:-150000}
+      HELP_AI_IP_HOURLY: ${HELP_AI_IP_HOURLY:-15}
       WORDPRESS_CONFIG_EXTRA: |
         define( 'WP_ENVIRONMENT_TYPE', 'local' );
         define( 'WP_DEBUG', true );
