@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>texasiplawhelp.com — website AI cost basis</title>
+  <link rel="stylesheet" href="help.css">
+  <style>
+    body { padding: 48px 28px 64px; max-width: 900px; margin: 0 auto; line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #001228; color: #fff; font-weight: 600; }
+    tr:nth-child(even) { background: #f7f9fb; }
+    h1, h2, h3 { font-family: var(--font-display); color: var(--navy-deep); }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; margin-top: 36px; }
+    h3 { font-size: 16px; margin-top: 24px; color: #333; }
+    .note { background: #eff3ff; border-left: 4px solid var(--gold); padding: 14px 18px; margin: 20px 0; font-size: 14px; }
+    .warn { background: #fff8e6; border-left: 4px solid #c9a227; padding: 14px 18px; margin: 20px 0; font-size: 14px; }
+    .muted { font-size: 13px; color: #575757; }
+    .rec { background: #001228; color: #fff; padding: 18px 22px; border-radius: 8px; margin: 24px 0; font-size: 15px; }
+    .rec strong { color: var(--gold); }
+    ul { padding-left: 1.25rem; }
+    li { margin: 6px 0; }
+    code { font-size: 13px; background: #f0f2f5; padding: 2px 6px; border-radius: 4px; }
+    .table-scroll { overflow-x: auto; margin: 16px 0 8px; -webkit-overflow-scrolling: touch; }
+    table.table-monthly { font-size: 11px; min-width: 1100px; }
+    table.table-session { font-size: 13px; max-width: 720px; }
+    table.table-monthly th { white-space: nowrap; }
+    table.table-monthly td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.table-monthly tfoot td { font-weight: 600; background: #e8eef5; }
+  </style>
+</head>
+<body>
+  <h1>texasiplawhelp.com — website Ask AI cost basis</h1>
+  <p><strong>Texas IP Law Help (public website)</strong> · Texas IP Law Group<br>
+  <span class="muted">Inventor traffic only — not phone apps. API list prices <strong>November 2026</strong>; confirm before go-live.</span></p>
+
+  <div class="note">
+    <strong>Scope:</strong> What the <strong>website</strong> pays when inventors use <strong>Ask AI</strong> — by <strong>website visits</strong>, month by month (main table §5). Monthly spend cap is set in WordPress for <strong>texasiplawhelp.com</strong>.
+  </div>
+
+  <h2>1. Website AI providers (pick one for Ask AI)</h2>
+  <p>These are <strong>API connections on the website</strong> — billed by inventor usage, with a monthly cap you set. Same quality families as ChatGPT-class, Gemini-class, and Grok-class models.</p>
+  <table>
+    <thead>
+      <tr><th>Website backend</th><th>Typical model on site</th><th>Billing</th><th>Feels like for inventors</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>OpenAI API</strong></td><td>GPT-4o mini (+ optional GPT-4o escalation)</td><td>Per token; cap in admin</td><td>ChatGPT-style answers</td></tr>
+      <tr><td><strong>Google Gemini API</strong></td><td>2.5 Flash-Lite or 2.5 Flash</td><td>Per token; cap in admin</td><td>Gemini-style answers</td></tr>
+      <tr><td><strong>xAI API</strong></td><td>Grok 4.3 (not 4.7 on every reply)</td><td>Per token; cap in admin</td><td>Grok-style answers</td></tr>
+      <tr><td><strong>Knowledge base only</strong> (guides + FAQs)</td><td>No live LLM</td><td><strong>$0</strong> API</td><td>Used when cap hit or question matched offline</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">All inventor $ figures are in <strong>§5</strong> (website visits → Ask AI → API cost).</p>
+
+  <h2>2. What actually drives “accurate” answers</h2>
+  <p>Brand name alone does not make inventor answers reliable. For IP education (not legal advice), quality comes from <strong>how</strong> you deploy the model:</p>
+  <ul>
+    <li><strong>Curated knowledge</strong> — your guides, approved FAQs, blog excerpts, USPTO URLs injected into each request (<em>RAG</em>).</li>
+    <li><strong>System instructions</strong> — “educational only,” cite USPTO, link to your guides, escalate to consultation, never claim attorney-client relationship.</li>
+    <li><strong>Model tier</strong> — “mini / Flash / Flash-Lite” for most questions; optionally route hard questions to a stronger model.</li>
+    <li><strong>Optional web grounding</strong> — Google Search grounding on Gemini (~1,500 free/day, then ~$35/1,000 queries) or similar; use sparingly with a cap.</li>
+    <li><strong>Fallback when budget hits</strong> — knowledge-base answers only ($0 API) so the site never “goes dark.”</li>
+  </ul>
+  <p>With that stack, <strong>GPT-4o mini, Gemini Flash, or Grok 4.3</strong> can all feel close to what you see in the apps — often <em>better</em> for your site because answers are grounded in <em>your</em> content and disclaimers.</p>
+
+  <div class="warn">
+    <strong>Important:</strong> No model guarantees legal accuracy. The product is <strong>general education</strong> + links to official sources + path to <strong>Texas IP Law Group</strong> for advice on specific facts.
+  </div>
+
+  <h2>3. API price comparison (per 1M tokens, USD)</h2>
+  <p class="muted">Sources: <a href="https://openai.com/api/pricing">openai.com/api/pricing</a>, <a href="https://ai.google.dev/gemini-api/docs/pricing">ai.google.dev/pricing</a>, <a href="https://docs.x.ai/developers/pricing">docs.x.ai/pricing</a></p>
+  <table>
+    <thead>
+      <tr><th>Model (API)</th><th>Input / 1M</th><th>Output / 1M</th><th>Per <strong>1M API tokens</strong><br>(inventor chat)</th><th>Avg website API<br>/ month (Year 1)</th><th>Good for</th><th>“Feels like” consumer app</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>OpenAI <strong>GPT-4o mini</strong></td><td>$0.15</td><td>$0.60</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$1.38</strong></td><td>Default workhorse; low cost</td><td>ChatGPT “fast” quality for everyday Q&amp;A</td></tr>
+      <tr><td>OpenAI <strong>GPT-4o</strong></td><td>$2.50</td><td>$10.00</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$23</strong></td><td>Harder reasoning; use selectively</td><td>Closer to full ChatGPT on tricky questions</td></tr>
+      <tr><td>Google <strong>Gemini 2.5 Flash-Lite</strong></td><td>$0.10</td><td>$0.40</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$0.93</strong></td><td>Highest volume, lowest cost</td><td>Lighter Gemini answers</td></tr>
+      <tr><td>Google <strong>Gemini 2.5 Flash</strong></td><td>$0.30</td><td>$2.50</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$4.13</strong></td><td>Balanced speed + quality</td><td>Typical Gemini app feel</td></tr>
+      <tr><td>Google <strong>Gemini 2.5 Pro</strong></td><td>$1.25</td><td>$10.00</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$17</strong></td><td>Complex explanations</td><td>Gemini “Pro” tier</td></tr>
+      <tr><td>xAI <strong>Grok 4.3</strong></td><td>$1.25</td><td>$2.50</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$9</strong></td><td>Mid cost; 1M context</td><td>Solid Grok-style chat</td></tr>
+      <tr><td>xAI <strong>Grok 4.7</strong></td><td>$2.00</td><td>$6.00</td><td class="num"><strong>~280</strong> paid AI answers<br><span class="muted">~620 questions total</span></td><td><strong>~$17</strong></td><td>Flagship; higher cost</td><td>Closest to premium Grok</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>For Susan — what inventors see vs. what you pay:</strong><br>
+    An inventor <strong>types a question</strong> in Ask AI. The site either:<br>
+    <strong>(A) Free reply</strong> — answer from your guides / FAQ library — <strong>$0</strong> API (about <strong>55%</strong> of replies).<br>
+    <strong>(B) Paid reply</strong> — ChatGPT / Gemini / Grok API writes the answer — uses <strong>tokens</strong> (about <strong>45%</strong> of replies).<br><br>
+    <strong>1 million API tokens</strong> ≈ only the <strong>(B)</strong> replies: about <strong>280 paid AI answers</strong> (each ≈ 3,000 + 600 tokens with your content included).<br>
+    In the same period inventors might type about <strong>620 questions total</strong> in chat — the other <strong>~340</strong> were answered for free under (A). You are <strong>not</strong> charged for (A).
+  </div>
+  <p class="muted">Math: 1,000,000 ÷ 3,600 tokens per paid answer ≈ <strong>280</strong>. Total questions ≈ 280 ÷ 0.45 ≈ <strong>620</strong>. Same token count for every vendor; <strong>$</strong> differs by the price column.</p>
+  <p class="muted"><strong>Avg / month</strong> = same <strong>§5 Year 1</strong> live API volume (~<strong>62M</strong> input + <strong>12.4M</strong> output tokens total), priced with each model’s rates, divided by 12. Actual month varies (e.g. Month 1 <strong>$0.14</strong>, Month 12 <strong>$3.24</strong> on mini). Caps in §5 limit spend regardless of model.</p>
+
+  <h2>4. Per Ask AI visit — questions, tokens, cost</h2>
+  <p class="muted"><strong>Website rules:</strong> max <strong>8</strong> AI replies per inventor per day · each live API call (RAG) ≈ <strong>3,000 input</strong> + <strong>600 output</strong> tokens · <strong>55%</strong> of bot replies from KB ($0) · <strong>45%</strong> call the API · GPT-4o mini ≈ <strong>$0.0008</strong> per live API reply (see §3). Regenerate numbers: <code>scripts/generate-ai-cost-forecast.py</code>.</p>
+  <table class="table-session">
+    <thead>
+      <tr>
+        <th>Inventor session</th>
+        <th>User questions<br>(typed)</th>
+        <th>Bot replies<br>(all)</th>
+        <th>Live API<br>calls</th>
+        <th>Input tokens<br>(API)</th>
+        <th>Output tokens<br>(API)</th>
+        <th>Total tokens<br>(API)</th>
+        <th>Website API $<br>(mini)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Light</strong></td><td class="num">2</td><td class="num">2</td><td class="num">1</td><td class="num">3.0k</td><td class="num">600</td><td class="num">3.6k</td><td class="num">$0.0008</td></tr>
+      <tr><td><strong>Typical</strong></td><td class="num">3.5</td><td class="num">4</td><td class="num">2</td><td class="num">6.0k</td><td class="num">1.2k</td><td class="num">7.2k</td><td class="num">$0.0016</td></tr>
+      <tr><td><strong>Heavy</strong></td><td class="num">6</td><td class="num">6</td><td class="num">3</td><td class="num">9.0k</td><td class="num">1.8k</td><td class="num">10.8k</td><td class="num">$0.0024</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Other models on the same tokens: bill ≈ mini × <strong>0.6</strong> (Gemini Flash-Lite) · × <strong>3.0</strong> (Gemini 2.5 Flash) · × <strong>6.6</strong> (Grok 4.3) — from §3 per-token rates.</p>
+
+  <h2>5. Year 1 — website visits, questions, tokens, API $</h2>
+  <p>Each month: <strong>website visits</strong> → inventors on <strong>Ask AI</strong> → <strong>user questions</strong> → chat volume → <strong>live API</strong> only burns tokens. Guides/search visits = <strong>$0</strong> API.</p>
+  <p class="muted"><strong>Formulas:</strong> Ask AI visits = visits × % · User questions = Ask AI visits × avg questions (ramps <strong>3.0 → 4.0</strong>) · Messages = Ask AI visits × <strong>6</strong> · Live API = messages × <strong>45%</strong> · Input tokens = live API × 3,000 · Output = live API × 600 · Bill = live API × $0.0008 (mini).</p>
+
+  <div class="table-scroll">
+  <table class="table-monthly">
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Website<br>visits</th>
+        <th>% use<br>Ask AI</th>
+        <th>Ask AI<br>visits</th>
+        <th>Guides /<br>search only</th>
+        <th>Avg user<br>questions</th>
+        <th>Total user<br>questions</th>
+        <th>Chat<br>messages</th>
+        <th>KB<br>replies</th>
+        <th>Live API<br>replies</th>
+        <th>Input<br>tokens</th>
+        <th>Output<br>tokens</th>
+        <th>Total<br>tokens</th>
+        <th>API $<br>(mini)</th>
+        <th>API<br>cap</th>
+      </tr>
+    </thead>
+    <tbody id="monthly-forecast-body">
+<tr><td><strong>Month 1</strong></td><td class="num"><strong>800</strong></td><td class="num">8%</td><td class="num"><strong>64</strong></td><td class="num">736</td><td class="num">3.0</td><td class="num">192</td><td class="num">384</td><td class="num">211</td><td class="num">173</td><td class="num">519.0k</td><td class="num">103.8k</td><td class="num">622.8k</td><td class="num"><strong>$0.14</strong></td><td class="num"><strong>$15</strong></td></tr>
+<tr><td><strong>Month 2</strong></td><td class="num"><strong>1,200</strong></td><td class="num">10%</td><td class="num"><strong>120</strong></td><td class="num">1,080</td><td class="num">3.1</td><td class="num">372</td><td class="num">720</td><td class="num">396</td><td class="num">324</td><td class="num">972.0k</td><td class="num">194.4k</td><td class="num">1.17M</td><td class="num"><strong>$0.26</strong></td><td class="num"><strong>$15</strong></td></tr>
+<tr><td><strong>Month 3</strong></td><td class="num"><strong>1,500</strong></td><td class="num">12%</td><td class="num"><strong>180</strong></td><td class="num">1,320</td><td class="num">3.2</td><td class="num">576</td><td class="num">1,080</td><td class="num">594</td><td class="num">486</td><td class="num">1.46M</td><td class="num">291.6k</td><td class="num">1.75M</td><td class="num"><strong>$0.39</strong></td><td class="num"><strong>$15</strong></td></tr>
+<tr><td><strong>Month 4</strong></td><td class="num"><strong>2,000</strong></td><td class="num">13%</td><td class="num"><strong>260</strong></td><td class="num">1,740</td><td class="num">3.3</td><td class="num">858</td><td class="num">1,560</td><td class="num">858</td><td class="num">702</td><td class="num">2.11M</td><td class="num">421.2k</td><td class="num">2.53M</td><td class="num"><strong>$0.56</strong></td><td class="num"><strong>$25</strong></td></tr>
+<tr><td><strong>Month 5</strong></td><td class="num"><strong>2,500</strong></td><td class="num">15%</td><td class="num"><strong>375</strong></td><td class="num">2,125</td><td class="num">3.4</td><td class="num">1,275</td><td class="num">2,250</td><td class="num">1,238</td><td class="num">1,012</td><td class="num">3.04M</td><td class="num">607.2k</td><td class="num">3.64M</td><td class="num"><strong>$0.81</strong></td><td class="num"><strong>$25</strong></td></tr>
+<tr><td><strong>Month 6</strong></td><td class="num"><strong>3,000</strong></td><td class="num">17%</td><td class="num"><strong>510</strong></td><td class="num">2,490</td><td class="num">3.5</td><td class="num">1,785</td><td class="num">3,060</td><td class="num">1,683</td><td class="num">1,377</td><td class="num">4.13M</td><td class="num">826.2k</td><td class="num">4.96M</td><td class="num"><strong>$1.10</strong></td><td class="num"><strong>$25</strong></td></tr>
+<tr><td><strong>Month 7</strong></td><td class="num"><strong>3,500</strong></td><td class="num">18%</td><td class="num"><strong>630</strong></td><td class="num">2,870</td><td class="num">3.5</td><td class="num">2,205</td><td class="num">3,780</td><td class="num">2,079</td><td class="num">1,701</td><td class="num">5.10M</td><td class="num">1.02M</td><td class="num">6.12M</td><td class="num"><strong>$1.36</strong></td><td class="num"><strong>$35</strong></td></tr>
+<tr><td><strong>Month 8</strong></td><td class="num"><strong>4,000</strong></td><td class="num">20%</td><td class="num"><strong>800</strong></td><td class="num">3,200</td><td class="num">3.6</td><td class="num">2,880</td><td class="num">4,800</td><td class="num">2,640</td><td class="num">2,160</td><td class="num">6.48M</td><td class="num">1.30M</td><td class="num">7.78M</td><td class="num"><strong>$1.73</strong></td><td class="num"><strong>$35</strong></td></tr>
+<tr><td><strong>Month 9</strong></td><td class="num"><strong>4,500</strong></td><td class="num">20%</td><td class="num"><strong>900</strong></td><td class="num">3,600</td><td class="num">3.7</td><td class="num">3,330</td><td class="num">5,400</td><td class="num">2,970</td><td class="num">2,430</td><td class="num">7.29M</td><td class="num">1.46M</td><td class="num">8.75M</td><td class="num"><strong>$1.94</strong></td><td class="num"><strong>$35</strong></td></tr>
+<tr><td><strong>Month 10</strong></td><td class="num"><strong>5,000</strong></td><td class="num">22%</td><td class="num"><strong>1,100</strong></td><td class="num">3,900</td><td class="num">3.8</td><td class="num">4,180</td><td class="num">6,600</td><td class="num">3,630</td><td class="num">2,970</td><td class="num">8.91M</td><td class="num">1.78M</td><td class="num">10.69M</td><td class="num"><strong>$2.38</strong></td><td class="num"><strong>$50</strong></td></tr>
+<tr><td><strong>Month 11</strong></td><td class="num"><strong>5,500</strong></td><td class="num">22%</td><td class="num"><strong>1,210</strong></td><td class="num">4,290</td><td class="num">3.9</td><td class="num">4,719</td><td class="num">7,260</td><td class="num">3,993</td><td class="num">3,267</td><td class="num">9.80M</td><td class="num">1.96M</td><td class="num">11.76M</td><td class="num"><strong>$2.61</strong></td><td class="num"><strong>$50</strong></td></tr>
+<tr><td><strong>Month 12</strong></td><td class="num"><strong>6,000</strong></td><td class="num">25%</td><td class="num"><strong>1,500</strong></td><td class="num">4,500</td><td class="num">4.0</td><td class="num">6,000</td><td class="num">9,000</td><td class="num">4,950</td><td class="num">4,050</td><td class="num">12.15M</td><td class="num">2.43M</td><td class="num">14.58M</td><td class="num"><strong>$3.24</strong></td><td class="num"><strong>$50</strong></td></tr>
+    </tbody>
+    <tfoot id="monthly-forecast-foot">
+      <tr><td><strong>Year 1</strong></td><td class="num"><strong>39,500</strong></td><td class="num">—</td><td class="num"><strong>7,649</strong></td><td class="num">31,851</td><td class="num">3.0→4.0 avg</td><td class="num"><strong>28,372</strong></td><td class="num">45,894</td><td class="num">25,242</td><td class="num">20,652</td><td class="num">61.96M</td><td class="num">12.39M</td><td class="num">74.35M</td><td class="num"><strong>$16.52</strong></td><td class="num">$375*</td></tr>
+    </tfoot>
+  </table>
+  </div>
+
+  <div class="note">
+    <strong>Example (Month 6):</strong> <strong>510</strong> Ask AI visits × <strong>3.5</strong> questions = <strong>1,785</strong> user questions → <strong>1,377</strong> live API replies → <strong>4.13M</strong> input tokens → <strong>$1.10</strong> website API (mini), under <strong>$25</strong> cap.
+  </div>
+  <p class="muted">*Year 1 cap sum if every month hit max = <strong>$375</strong>; projected mini API spend ≈ <strong>$16.52</strong>. Weaker KB (35% API not 45%): multiply live API, token, and $ columns by ~<strong>1.29</strong>. Over cap → KB only until next month.</p>
+
+  <h2>6. Recommended architecture (accuracy + predictable bill)</h2>
+  <div class="rec">
+    <strong>Recommended for texasiplawhelp.com:</strong><br>
+    Primary: <strong>OpenAI GPT-4o mini</strong> <em>or</em> <strong>Google Gemini 2.5 Flash-Lite</strong> for almost all chats (low cost, app-like quality).<br>
+    Optional: auto-escalate ~5–10% of turns to <strong>GPT-4o</strong> or <strong>Gemini 2.5 Pro</strong> when the user asks a multi-step patent/strategy question.<br>
+  If the site uses <strong>Grok</strong> API: <strong>Grok 4.3</strong> as primary (not 4.7 on every reply).<br>
+    Hard cap: <strong>$25–50/month</strong> in WordPress admin → then <strong>knowledge base only</strong> until next month.
+  </div>
+
+  <h3>Cost controls (same for any vendor)</h3>
+  <ul>
+    <li><strong>Monthly spend cap</strong> — e.g. $25 (your earlier planning number); API stops, KB continues.</li>
+    <li><strong>Daily token limit</strong> — e.g. 400k tokens/day.</li>
+    <li><strong>Per visitor session</strong> — e.g. 6–8 AI replies, then “schedule consultation.”</li>
+    <li><strong>Match FAQs first</strong> — provisional vs non-provisional, trademark basics → no API call when confidence is high.</li>
+  </ul>
+
+  <h2>7. Other website line items (beside §5)</h2>
+  <ul>
+    <li>Optional <strong>Gemini Google Search grounding</strong> on the site: <strong>$0</strong> at low volume; <strong>$10–35/mo</strong> if many grounded searches</li>
+    <li><strong>Hosting / domain</strong> (texasiplawhelp.com): unchanged — separate from API</li>
+    <li>Worst case any month = <strong>Website API cap</strong> in §5 (e.g. <strong>$50</strong>); typical bill = <strong>Website API bill (est.)</strong> column</li>
+  </ul>
+
+  <p class="muted">Texas IP Law Group · Internal planning · Mock AI on site today is scripted; live site uses API + caps above.<br>
+  Open mock: <code>mockups/gold-navy/ai-cost-appendix.html</code> · Help product: <code>mockups/texasiplawhelp/SCOPE.md</code> §4b</p>
+</body>
+</html>
