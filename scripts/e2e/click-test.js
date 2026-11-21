@@ -8,6 +8,10 @@ const { chromium } = require('playwright-core');
 const fs = require('fs');
 const BASE = process.env.BASE || 'http://localhost:8082';
 const MAIL = 'http://localhost:8026';
+// Against a live site (BASE=https://...) the form is not submitted and the AI chat is not run,
+// so no real email is sent and no AI tokens are spent. Set E2E_SEND_REAL=1 to send one consult email.
+const LOCAL = /localhost|127\.0\.0\.1/.test(BASE);
+const SEND = LOCAL || process.env.E2E_SEND_REAL === '1';
 const VP = process.argv[2] || 'desktop';
 const viewport = VP === 'mobile' ? { width: 390, height: 844 } : { width: 1280, height: 800 };
 
@@ -30,7 +34,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   });
   // External sites: stub so a click can be verified without leaving the box.
   const externalHits = [];
-  await ctx.route(url => !/^https?:\/\/localhost:8082/.test(url.href) && !/^data:/.test(url.href), route => {
+  await ctx.route(url => url.origin !== new URL(BASE).origin && !/^data:/.test(url.href), route => {
     const u = route.request().url();
     if (route.request().resourceType() === 'document') {
       externalHits.push(u);
@@ -233,6 +237,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   const stillForm = await page.locator('#consult-form').isVisible();
   check(stillForm, '[consult] form still visible after invalid submit');
 
+  if (SEND) {
   // clear mail, submit valid
   await fetch(MAIL + '/api/v1/messages', { method: 'DELETE' });
   await page.fill('#consult-name', 'E2E Tester ' + VP);
@@ -256,6 +261,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   await openModal();
   check(await page.locator('#consult-form').isVisible() && !(await page.locator('#consult-success').isVisible()), '[consult] reopen shows fresh form');
   check((await page.inputValue('#consult-name')) === '', '[consult] reopen clears fields');
+  }
   // links inside the modal (modal is already open here)
   const mlinks = page.locator('#consult-modal a[href]'); const mln = await mlinks.count();
   ok('[consult] links inside modal: ' + mln);
@@ -266,6 +272,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   }
   await page.keyboard.press('Escape');
   await openModal();
+  if (SEND) {
   // honeypot
   await page.fill('#consult-name', 'Bot'); await page.fill('#consult-email', 'bot@example.com'); await page.fill('#consult-invention', 'spam');
   await page.locator('#consult-form input[name="interest[]"]').first().check();
@@ -276,6 +283,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   const msgs2 = await (await fetch(MAIL + '/api/v1/messages')).json();
   check((msgs2.messages || []).length === 0, '[consult] honeypot submissions send no email', 'emails: ' + (msgs2.messages || []).length);
   await page.keyboard.press('Escape');
+  }
   // honeypot is not visible/focusable to humans
   const hpVisible = await page.evaluate(() => { const e = document.getElementById('consult-website'); const r = e.getBoundingClientRect(); const s = getComputedStyle(e.closest('div,label,p') || e); return { w: r.width, h: r.height, tab: e.tabIndex, vis: s.visibility, disp: s.display, left: r.left }; });
   ok('[consult] honeypot geometry ' + JSON.stringify(hpVisible));
@@ -294,6 +302,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   await page.fill('#email', 'e2e@example.com'); await page.fill('#q', '');
   await page.locator('#mock-start-ai').click(); await page.waitForTimeout(300);
   check(dialogs.length === 3 && /first question/i.test(dialogs[2]), '[ask] missing question → prompt', JSON.stringify(dialogs));
+  if (LOCAL) { // the chat is only exercised on the local site (no AI tokens spent on a live one)
   await page.fill('#q', 'Can I patent my app idea?');
   for (const sel of ['#topic', '#interest']) {
     const opts = await page.locator(sel + ' option').evaluateAll(o => o.map(x => x.value));
@@ -333,6 +342,7 @@ function check(cond, name, detail) { cond ? ok(name) : bad(name, detail || 'fail
   await page.fill('#name', 'x'); await page.fill('#email', 'x@x.co'); await page.fill('#q', '<img src=x onerror=window.__xss=1> hi');
   await page.locator('#mock-start-ai').click(); await page.waitForTimeout(900);
   check(!(await page.evaluate(() => window.__xss)), '[ask] HTML in question is escaped (no XSS)');
+  }
   // #chat redirect from other page, FAB
   await go('/guides/#chat'); await page.waitForURL(/\/ask\//, { timeout: 5000 }).then(() => ok('[ask] /guides/#chat redirects to /ask/'), () => bad('[ask] /guides/#chat redirect', page.url()));
   await go('/');
