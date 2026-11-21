@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HELP_THEME_VERSION', '1.2.0' );
+define( 'HELP_THEME_VERSION', '1.2.1' );
 
 require_once get_theme_file_path( 'inc/helpers.php' );
 require_once get_theme_file_path( 'inc/seo.php' );

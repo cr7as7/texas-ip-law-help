@@ -5,7 +5,7 @@
  * routine refreshes it (see help_seed_create_posts()). Edited articles are never touched.
  *
  * Tokens in content:
- *   {{help_url:key}}        absolute URL from help_url_map()
+ *   {{help_url:key}}        URL from help_url_map() (root-relative when it is on this site)
  *   {{consult:Button text}} a "free consultation" link-style button
  *
  * Educational, general information only. Have the attorney review before launch.

@@ -72,6 +72,8 @@ node scripts/e2e/click-test.js mobile
 
 It ends with `N/N checks passed`. The local site must be running.
 
+Against a live site: `BASE=https://texasiplawhelp.com node scripts/e2e/click-test.js desktop`. It skips the consult submission and the AI chat so nothing is emailed and no AI tokens are spent (`E2E_SEND_REAL=1` sends one real consult email).
+
 ## Visual parity check
 
 Compares the WordPress site with the static mock at desktop (1280) and phone (390) widths:

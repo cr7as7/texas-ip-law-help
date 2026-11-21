@@ -82,7 +82,14 @@ function help_seed_resolve_tokens( $content ) {
 	$content = preg_replace_callback(
 		'/\{\{help_url:([a-z\-]+)\}\}/',
 		static function ( $m ) {
-			return esc_url_raw( help_url( $m[1] ) );
+			// Store links on this site as root-relative paths, so they keep working when the
+			// site moves from the temporary GoDaddy address to texasiplawhelp.com.
+			$url  = esc_url_raw( help_url( $m[1] ) );
+			$home = untrailingslashit( home_url() );
+			if ( 0 === strpos( $url, $home . '/' ) ) {
+				return substr( $url, strlen( $home ) );
+			}
+			return $url;
 		},
 		$content
 	);
