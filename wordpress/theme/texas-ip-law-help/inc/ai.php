@@ -6,9 +6,13 @@
  * file calls xAI from the server.
  *
  * With no key configured the site stays in demo mode (canned answers in help.js), so the
- * placeholder works out of the box. To go live, add to wp-config.php (above "That's all"):
+ * placeholder works out of the box. To go live, open "Help AI" in wp-admin and paste the key
+ * (inc/ai-admin.php), or add to wp-config.php (above "That's all"):
  *
  *   define( 'HELP_XAI_API_KEY', 'xai-...' );
+ *
+ * Order of precedence: wp-config.php constant, then the Help AI page, then environment variable,
+ * then the default.
  *
  * Optional wp-config.php constants (environment variables with the same names also work):
  *
@@ -40,11 +44,99 @@ function help_ai_setting( $name, $default = '' ) {
 	if ( defined( $name ) ) {
 		return constant( $name );
 	}
+	$field = help_ai_saved_field( $name );
+	if ( '' !== $field ) {
+		$saved = help_ai_saved_settings();
+		if ( 'key' === $field ) {
+			$key = isset( $saved['key'] ) ? help_ai_decrypt( (string) $saved['key'] ) : '';
+			if ( '' !== $key ) {
+				return $key;
+			}
+		} elseif ( array_key_exists( $field, $saved ) ) {
+			return $saved[ $field ];
+		}
+	}
 	$env = getenv( $name );
 	if ( false !== $env && '' !== $env ) {
 		return $env;
 	}
 	return $default;
+}
+
+/**
+ * Which field of the Help AI settings page backs a wp-config setting ('' if none).
+ *
+ * @param string $name Constant name.
+ * @return string
+ */
+function help_ai_saved_field( $name ) {
+	$map = array(
+		'HELP_XAI_API_KEY'         => 'key',
+		'HELP_XAI_MODEL'           => 'model',
+		'HELP_AI_ENABLED'          => 'enabled',
+		'HELP_AI_DAILY_TOKEN_CAP'  => 'daily_cap',
+		'HELP_AI_MONTHLY_TOKEN_CAP' => 'monthly_cap',
+		'HELP_AI_MAX_REPLY_TOKENS' => 'reply_tokens',
+		'HELP_AI_IP_HOURLY'        => 'ip_hourly',
+		'HELP_AI_IP_DAILY'         => 'ip_daily',
+	);
+	return isset( $map[ $name ] ) ? $map[ $name ] : '';
+}
+
+/**
+ * Settings saved from the Help AI page in wp-admin.
+ *
+ * @return array<string,mixed>
+ */
+function help_ai_saved_settings() {
+	$saved = get_option( 'help_ai_settings', array() );
+	return is_array( $saved ) ? $saved : array();
+}
+
+/**
+ * Encrypt the API key before it goes into the database (so it is not readable in a DB backup).
+ *
+ * @param string $plain Key.
+ * @return string
+ */
+function help_ai_encrypt( $plain ) {
+	if ( function_exists( 'sodium_crypto_secretbox' ) ) {
+		$nonce  = random_bytes( 24 );
+		$cipher = sodium_crypto_secretbox( $plain, $nonce, help_ai_secret_key() );
+		return 's1:' . base64_encode( $nonce . $cipher ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+	}
+	return 'p1:' . base64_encode( $plain ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+}
+
+/**
+ * Reverse of help_ai_encrypt(). Returns '' if it cannot be read (for example the site salts changed).
+ *
+ * @param string $stored Stored value.
+ * @return string
+ */
+function help_ai_decrypt( $stored ) {
+	if ( 0 === strpos( $stored, 's1:' ) && function_exists( 'sodium_crypto_secretbox_open' ) ) {
+		$raw = base64_decode( substr( $stored, 3 ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		if ( false === $raw || strlen( $raw ) < 41 ) {
+			return '';
+		}
+		$plain = sodium_crypto_secretbox_open( substr( $raw, 24 ), substr( $raw, 0, 24 ), help_ai_secret_key() );
+		return false === $plain ? '' : (string) $plain;
+	}
+	if ( 0 === strpos( $stored, 'p1:' ) ) {
+		$plain = base64_decode( substr( $stored, 3 ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		return false === $plain ? '' : (string) $plain;
+	}
+	return '';
+}
+
+/**
+ * Encryption key derived from the site's secret salts.
+ *
+ * @return string 32 bytes.
+ */
+function help_ai_secret_key() {
+	return hash( 'sha256', wp_salt( 'auth' ), true );
 }
 
 /**
@@ -90,8 +182,8 @@ function help_ai_is_live() {
  */
 function help_ai_usage() {
 	$usage = get_option( 'help_ai_usage', array() );
-	$day   = gmdate( 'Y-m-d' );
-	$month = gmdate( 'Y-m' );
+	$day   = wp_date( 'Y-m-d' );
+	$month = wp_date( 'Y-m' );
 
 	$usage = wp_parse_args(
 		is_array( $usage ) ? $usage : array(),
@@ -126,6 +218,56 @@ function help_ai_record_usage( $tokens ) {
 	$usage['month_tokens'] += max( 0, (int) $tokens );
 	$usage['calls']         = (int) $usage['calls'] + 1;
 	update_option( 'help_ai_usage', $usage, false );
+	help_ai_history_add( array( 'tokens' => max( 0, (int) $tokens ), 'calls' => 1 ) );
+}
+
+/**
+ * Per-day counters (last 60 days) for the Help AI page. Counts only; no questions or answers.
+ *
+ * @return array<string,array<string,int>>
+ */
+function help_ai_history() {
+	$days = get_option( 'help_ai_days', array() );
+	return is_array( $days ) ? $days : array();
+}
+
+/**
+ * Add to today's counters.
+ *
+ * @param array<string,int> $add Field => amount (tokens, calls, cap, limit, error).
+ */
+function help_ai_history_add( $add ) {
+	$days  = help_ai_history();
+	$today = wp_date( 'Y-m-d' );
+	$row   = isset( $days[ $today ] ) && is_array( $days[ $today ] ) ? $days[ $today ] : array();
+	$row   = wp_parse_args( $row, array( 'tokens' => 0, 'calls' => 0, 'cap' => 0, 'limit' => 0, 'error' => 0 ) );
+	foreach ( $add as $field => $amount ) {
+		if ( isset( $row[ $field ] ) ) {
+			$row[ $field ] += (int) $amount;
+		}
+	}
+	$days[ $today ] = $row;
+	krsort( $days );
+	update_option( 'help_ai_days', array_slice( $days, 0, 60, true ), false );
+}
+
+/**
+ * Remember whether the last call to xAI worked, so the Help AI page can say what is wrong.
+ *
+ * @param bool       $ok   Did it work?
+ * @param int|string $code HTTP status, or 'network'.
+ */
+function help_ai_note_status( $ok, $code = 0 ) {
+	$status = get_option( 'help_ai_status', array() );
+	$status = is_array( $status ) ? $status : array();
+	$status['state'] = $ok ? 'ok' : 'error';
+	if ( $ok ) {
+		$status['last_ok'] = time();
+	} else {
+		$status['last_error']      = time();
+		$status['last_error_code'] = $code;
+	}
+	update_option( 'help_ai_status', $status, false );
 }
 
 /**
@@ -291,6 +433,9 @@ function help_ai_estimate_tokens( $text ) {
  * @param string $reason Why (cap, limit, error, off).
  */
 function help_ai_send_kb( $reason ) {
+	if ( in_array( $reason, array( 'cap', 'limit', 'error' ), true ) ) {
+		help_ai_history_add( array( $reason => 1 ) );
+	}
 	wp_send_json_success(
 		array(
 			'mode'   => 'kb',
@@ -382,15 +527,18 @@ function help_ai_chat_handler() {
 	);
 
 	if ( is_wp_error( $response ) ) {
+		help_ai_note_status( false, 'network' );
 		help_ai_send_kb( 'error' );
 	}
 
 	$code = (int) wp_remote_retrieve_response_code( $response );
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 	if ( 200 !== $code || ! is_array( $data ) ) {
-		// 401/403 = bad key, 429 = xAI-side limit, 5xx = outage. Never show the details.
+		// 401/403 = bad key, 429 = xAI-side limit, 5xx = outage. Never show the details to visitors.
+		help_ai_note_status( false, $code );
 		help_ai_send_kb( 'error' );
 	}
+	help_ai_note_status( true );
 
 	// Count what xAI says we used; if it does not say, count the worst case.
 	$tokens = isset( $data['usage']['total_tokens'] ) ? (int) $data['usage']['total_tokens'] : $risk;
@@ -410,38 +558,3 @@ function help_ai_chat_handler() {
 }
 add_action( 'wp_ajax_nopriv_help_ai_chat', 'help_ai_chat_handler' );
 add_action( 'wp_ajax_help_ai_chat', 'help_ai_chat_handler' );
-
-/**
- * Tools -> Help AI usage (admins only): today's spend against the caps.
- */
-function help_ai_admin_menu() {
-	add_management_page( 'Help AI usage', 'Help AI usage', 'manage_options', 'help-ai-usage', 'help_ai_admin_page' );
-}
-add_action( 'admin_menu', 'help_ai_admin_menu' );
-
-/**
- * Render the usage page.
- */
-function help_ai_admin_page() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-	$config = help_ai_config();
-	$usage  = help_ai_usage();
-	$mode   = help_ai_is_live() ? 'Live (Grok)' : ( '' === $config['key'] ? 'Demo mode (no API key set)' : 'Off (kill switch)' );
-	$rows   = array(
-		'Mode'                  => $mode,
-		'Model'                 => $config['model'],
-		'Tokens today'          => number_format_i18n( $usage['day_tokens'] ) . ' of ' . number_format_i18n( $config['daily_cap'] ),
-		'Tokens this month'     => number_format_i18n( $usage['month_tokens'] ) . ' of ' . number_format_i18n( $config['monthly_cap'] ),
-		'Max tokens per answer' => number_format_i18n( $config['reply_tokens'] ),
-		'Per visitor'           => $config['ip_hourly'] . ' per hour, ' . $config['ip_daily'] . ' per day',
-		'Answers served'        => number_format_i18n( $usage['calls'] ),
-	);
-	echo '<div class="wrap"><h1>Help AI usage</h1><table class="widefat striped" style="max-width:640px"><tbody>';
-	foreach ( $rows as $label => $value ) {
-		echo '<tr><th scope="row">' . esc_html( $label ) . '</th><td>' . esc_html( (string) $value ) . '</td></tr>';
-	}
-	echo '</tbody></table>';
-	echo '<p>Over a cap, visitors get knowledge-base answers instead. Caps and the API key are set in wp-config.php. See the README (&ldquo;Grok AI and spending caps&rdquo;).</p></div>';
-}
