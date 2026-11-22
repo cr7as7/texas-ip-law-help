@@ -25,13 +25,17 @@
 
 The "Ask AI" chat runs in **demo mode** (canned answers) until an xAI key is set. Live mode is `inc/ai.php`: the browser posts to WordPress, and WordPress calls xAI from the server, so the key is never exposed.
 
-To switch on Grok, add this to `html/wp-config.php` on GoDaddy (above the line "That's all, stop editing"). **Never put the key in the repo.**
+**Easiest way (no files to edit): the Help AI page in wp-admin** (`inc/ai-admin.php`). Log in to WordPress with your own account, open **Help AI** in the left menu, paste the xAI key, press **Test connection**, then **Save settings**. The page also shows live usage (tokens today and this month against the caps, answers, how many visitors were sent to the knowledge base, a 14-day table, and a health line that says if xAI rejects the key or runs out of credit), refreshes itself every 30 seconds, and has a switch to pause the AI instantly. The key is encrypted before it is saved and is never shown again (only its last 4 characters). There is no "log in with xAI"; xAI only uses API keys.
+
+**Giving Susan her own login:** Users → Add New, then pick the role **Help AI manager** (sees only the Help AI page) or **Administrator** (sees everything). After she logs in at `/wp-login.php` she lands on the Help AI page. Set Settings → General → Timezone to Chicago so "today" matches her day.
+
+**Alternative: wp-config.php.** Anything set there wins and shows as locked on the page. Add to `html/wp-config.php` on GoDaddy (above the line "That's all, stop editing"). **Never put the key in the repo.**
 
 ```php
 define( 'HELP_XAI_API_KEY', 'xai-...' );
 ```
 
-Optional settings (all have safe defaults):
+Optional settings (all have safe defaults; the same values can be changed on the Help AI page unless set here):
 
 | Constant | Default | Meaning |
 |----------|---------|---------|
@@ -42,7 +46,7 @@ Optional settings (all have safe defaults):
 | `HELP_AI_IP_HOURLY` / `HELP_AI_IP_DAILY` | `15` / `40` | Questions per visitor per hour / day. |
 | `HELP_AI_ENABLED` | `true` | Set `false` to switch the AI off at once (demo answers only). |
 
-Layers of protection: 4 questions per chat in the browser, per-visitor limits, a daily and monthly site-wide token cap checked **before** each call (using xAI's reported usage afterwards), a short reply limit, and no stored conversations. The model is told to give general education only, never legal advice, and to link only to this site, USPTO.gov, Copyright.gov, and texasiplawgroup.com; links to other hosts are stripped from answers. Usage so far is under **Tools → Help AI usage** in wp-admin.
+Layers of protection: 4 questions per chat in the browser, per-visitor limits, a daily and monthly site-wide token cap checked **before** each call (using xAI's reported usage afterwards), a short reply limit, and no stored conversations. The model is told to give general education only, never legal advice, and to link only to this site, USPTO.gov, Copyright.gov, and texasiplawgroup.com; links to other hosts are stripped from answers. Usage so far is on the **Help AI** page in wp-admin.
 
 Test it without a real key: `python3 scripts/mock-xai.py`, then start Docker with `HELP_XAI_API_KEY=test HELP_XAI_ENDPOINT=http://host.docker.internal:8099/v1/chat/completions docker compose up -d wordpress`.
 
